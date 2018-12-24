@@ -8,9 +8,9 @@ repositories {
 }
 
 dependencies {
-    compile("io.vertx:vertx-core:3.6.0")
-    compile("io.vertx:vertx-codegen:3.6.0:processor")
-    compile("io.vertx:vertx-service-proxy:3.6.0")
+    compile("io.vertx:vertx-core:3.6.2")
+    compile("io.vertx:vertx-codegen:3.6.2:processor")
+    compile("io.vertx:vertx-service-proxy:3.6.2")
 }
 task<JavaCompile>("annotationProcessing") {
     source = sourceSets.getByName("main").java
