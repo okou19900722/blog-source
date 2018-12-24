@@ -1,0 +1,1 @@
+rootProject.name = "service-proxy-gradle5-custom-task"

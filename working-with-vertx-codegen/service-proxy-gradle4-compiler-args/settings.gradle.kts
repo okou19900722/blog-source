@@ -1,0 +1,1 @@
+rootProject.name = "service-proxy-gradle4-compiler-args"
