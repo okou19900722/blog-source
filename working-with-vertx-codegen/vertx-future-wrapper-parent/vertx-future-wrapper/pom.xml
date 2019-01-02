@@ -11,10 +11,6 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>vertx-future-wrapper</artifactId>
-  <properties>
-    <vertx.version>3.6.2</vertx.version>
-    <vertx.docgen.version>0.9.2</vertx.docgen.version>
-  </properties>
 
   <dependencies>
     <dependency>
@@ -100,7 +96,7 @@
                 <processor>io.vertx.codegen.CodeGenProcessor</processor>
               </processors>
               <optionMap>
-                <codegen.generators>Reactor</codegen.generators>
+                <codegen.generators>FutureWrapper</codegen.generators>
               </optionMap>
             </configuration>
           </execution>
