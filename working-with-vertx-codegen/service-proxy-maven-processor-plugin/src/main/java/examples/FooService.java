@@ -9,6 +9,6 @@ import io.vertx.core.json.JsonObject;
 @ProxyGen
 public interface FooService {
 
-    void foo(String foo, Handler<AsyncResult<Void>> result);
+  void foo(String foo, Handler<AsyncResult<Void>> result);
 
 }

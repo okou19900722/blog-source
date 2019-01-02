@@ -7,5 +7,5 @@ import io.vertx.core.Handler;
 @ProxyGen
 public interface FooService {
 
-    void foo(String foo, Handler<AsyncResult<Void>> result);
+  void foo(String foo, Handler<AsyncResult<Void>> result);
 }
