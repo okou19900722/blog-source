@@ -15,21 +15,21 @@ dependencies {
   annotationProcessor("io.vertx:vertx-codegen:3.6.2:processor")
   annotationProcessor("io.vertx:vertx-service-proxy:3.6.2")
 }
-
-tasks.getByName("compileJava") {
-  this as JavaCompile
+val compileJava = tasks.named<JavaCompile>("compileJava")
+compileJava {
+  options.annotationProcessorGeneratedSourcesDirectory = file("build/generated")
   options.compilerArgs = listOf(
     "-Acodegen.output=src/main"
   )
 }
-tasks.getByName("jar") {
-  this as Jar
+val jar = tasks.named<Jar>("jar")
+jar {
   exclude("**/*.java")
 }
 sourceSets {
   main {
     java {
-      srcDirs += srcDir("build/classes/java/main/")
+      srcDirs += srcDir("build/generated")
     }
   }
 }

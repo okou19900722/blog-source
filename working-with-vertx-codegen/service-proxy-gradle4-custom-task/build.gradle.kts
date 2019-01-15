@@ -14,7 +14,7 @@ dependencies {
 }
 task<JavaCompile>("annotationProcessing") {
   source = sourceSets.getByName("main").java
-  classpath = configurations.compile + configurations.compileOnly
+  classpath = configurations["compile"] + configurations["compileOnly"]
   destinationDir = project.file("build/generated")
   options.compilerArgs = listOf(
     "-proc:only",
