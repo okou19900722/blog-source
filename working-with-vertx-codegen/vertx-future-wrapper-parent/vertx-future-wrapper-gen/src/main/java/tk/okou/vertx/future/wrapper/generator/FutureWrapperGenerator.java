@@ -370,7 +370,8 @@ class FutureWrapperGenerator extends Generator<ClassModel> {
     TypeInfo futUnresolvedType = ((ParameterizedTypeInfo) ((ParameterizedTypeInfo) futParam.getUnresolvedType()).getArg(0)).getArg(0);
     TypeInfo futReturnType;
     if (futUnresolvedType.getKind() == ClassKind.VOID) {
-      futReturnType = TypeReflectionFactory.create(Future.class);
+      futType = TypeReflectionFactory.create(Void.class);
+      futReturnType = new ParameterizedTypeInfo(TypeReflectionFactory.create(Future.class).getRaw(), false, Collections.singletonList(futType));
     } else if (futUnresolvedType.isNullable()) {
       futReturnType = new ParameterizedTypeInfo(TypeReflectionFactory.create(Future.class).getRaw(), false, Collections.singletonList(futType));
     } else {
