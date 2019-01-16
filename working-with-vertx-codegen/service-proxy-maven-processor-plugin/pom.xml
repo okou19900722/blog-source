@@ -47,7 +47,7 @@
             <goals>
               <goal>process</goal>
             </goals>
-            <phase>process-sources</phase>
+            <phase>generate-sources</phase>
             <configuration>
               <processors>
                 <processor>io.vertx.codegen.CodeGenProcessor</processor>
