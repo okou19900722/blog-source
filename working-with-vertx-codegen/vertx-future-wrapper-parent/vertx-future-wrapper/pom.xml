@@ -40,7 +40,22 @@
       <artifactId>vertx-core</artifactId>
       <version>${vertx.version}</version>
       <classifier>sources</classifier>
+      <optional>true</optional>
     </dependency>
+
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-redis-client</artifactId>
+      <version>${vertx.version}</version>
+      <classifier>sources</classifier>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-redis-client</artifactId>
+      <version>${vertx.version}</version>
+    </dependency>
+
   </dependencies>
 
   <build>
@@ -53,6 +68,7 @@
           <!--这里配置的是需要解压的包-->
           <includeArtifactIds>
             vertx-core,
+            vertx-redis-client,
           </includeArtifactIds>
           <classifier>sources</classifier>
           <includeTypes>jar</includeTypes>

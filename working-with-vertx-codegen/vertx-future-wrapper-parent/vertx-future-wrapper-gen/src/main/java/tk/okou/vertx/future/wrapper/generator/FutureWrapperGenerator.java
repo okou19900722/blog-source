@@ -527,29 +527,25 @@ class FutureWrapperGenerator extends Generator<ClassModel> {
         ClassKind eventKind = eventType.getKind();
         if (eventKind == ASYNC_RESULT) {
           TypeInfo resultType = ((ParameterizedTypeInfo) eventType).getArg(0);
-          return "new Handler<AsyncResult<" + resultType.getName() + ">>() {\n" +
-            "      public void handle(AsyncResult<" + resultType.getName() + "> ar) {\n" +
-            "        if (ar.succeeded()) {\n" +
-            "          " + expr + ".handle(io.vertx.core.Future.succeededFuture(" + genConvReturn(resultType, method, "ar.result()") + "));\n" +
-            "        } else {\n" +
-            "          " + expr + ".handle(io.vertx.core.Future.failedFuture(ar.cause()));\n" +
-            "        }\n" +
+          return "ar -> {\n" +
+            "      if (ar.succeeded()) {\n" +
+            "        " + expr + ".handle(io.vertx.core.Future.succeededFuture(" + genConvReturn(resultType, method, "ar.result()") + "));\n" +
+            "      } else {\n" +
+            "        " + expr + ".handle(io.vertx.core.Future.failedFuture(ar.cause()));\n" +
             "      }\n" +
-            "    }";
+            "  }";
         } else {
-          return "new Handler<" + eventType.getName() + ">() {\n" +
-            "      public void handle(" + eventType.getName() + " event) {\n" +
-            "        " + expr + ".handle(" + genConvReturn(eventType, method, "event") + ");\n" +
-            "      }\n" +
-            "    }";
+          return " event -> {\n" +
+            "      " + expr + ".handle(" + genConvReturn(eventType, method, "event") + ");\n" +
+            "  }";
         }
       } else if (kind == FUNCTION) {
         TypeInfo argType = parameterizedTypeInfo.getArg(0);
         TypeInfo retType = parameterizedTypeInfo.getArg(1);
         return " arg -> {\n" +
-          "        " + genTypeName(retType) + " ret = " + expr + ".apply(" + genConvReturn(argType, method, "arg") + ");\n" +
-          "        return " + genConvParam(retType, method, "ret") + ";\n" +
-          "    }";
+          "      " + genTypeName(retType) + " ret = " + expr + ".apply(" + genConvReturn(argType, method, "arg") + ");\n" +
+          "      return " + genConvParam(retType, method, "ret") + ";\n" +
+          "  }";
       } else if (kind == LIST || kind == SET) {
         return expr + ".stream().map(elt -> " + genConvParam(parameterizedTypeInfo.getArg(0), method, "elt") + ").collect(java.util.stream.Collectors.to" + type.getRaw().getSimpleName() + "())";
       } else if (kind == MAP) {
