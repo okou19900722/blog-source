@@ -8,6 +8,7 @@ import io.vertx.codegen.doc.Tag;
 import io.vertx.codegen.doc.Token;
 import io.vertx.codegen.type.*;
 import io.vertx.codegen.writer.CodeWriter;
+import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import tk.okou.vertx.future.wrapper.FutureGen;
 
@@ -31,8 +32,16 @@ class FutureWrapperGenerator extends Generator<ClassModel> {
     return Arrays.asList(VertxGen.class, ModuleGen.class);
   }
 
+  private boolean isFuture(ClassTypeInfo typeInfo) {
+    String name = typeInfo.getRaw().getName();
+    return name.equals(Future.class.getName()) || name.equals(CompositeFuture.class.getName());
+  }
+
   @Override
   public String filename(ClassModel model) {
+    if (isFuture(model.getType())) {
+      return null;
+    }
     return model.getType().translateName("future") + ".java";
   }
 
@@ -383,7 +392,7 @@ class FutureWrapperGenerator extends Generator<ClassModel> {
 
   private void genRxMethod(MethodInfo method, PrintWriter writer) {
     MethodInfo futMethod = this.genFutureMethod(method);
-    String adapterType = "io.vertx.future.core.Future.future";
+    String adapterType = "io.vertx.core.Future.future";
     this.startMethodTemplate(futMethod, writer);
     writer.println(" { ");
     writer.print("    return ");
@@ -398,7 +407,7 @@ class FutureWrapperGenerator extends Generator<ClassModel> {
       writer.print(", ");
     }
 
-    writer.println("handler.getDelegate());");
+    writer.println("handler);");
     writer.println("    });");
     writer.println("  }");
     writer.println();
@@ -498,7 +507,17 @@ class FutureWrapperGenerator extends Generator<ClassModel> {
       }
       return expr;
     } else if (kind == API) {
-      return expr + ".getDelegate()";
+      if (isFuture(type.getRaw())) {
+        if (type instanceof ParameterizedTypeInfo) {
+          ParameterizedTypeInfo api = (ParameterizedTypeInfo) type;
+          return expr + ".map(" + api.getArg(0).translateName("future") + "::getDelegate)";
+        } else {
+          ApiTypeInfo api = (ApiTypeInfo) type;
+          return expr + "/*A:" + api.getHandlerArg().getName() + "*/";
+        }
+      } else {
+        return expr + ".getDelegate()";
+      }
     } else if (kind == CLASS_TYPE) {
       return tk.okou.vertx.future.wrapper.Helper.class.getName() + ".unwrap(" + expr + ")";
     } else if (type.isParameterized()) {
@@ -527,11 +546,9 @@ class FutureWrapperGenerator extends Generator<ClassModel> {
       } else if (kind == FUNCTION) {
         TypeInfo argType = parameterizedTypeInfo.getArg(0);
         TypeInfo retType = parameterizedTypeInfo.getArg(1);
-        return "new java.util.function.Function<" + argType.getName() + "," + retType.getName() + ">() {\n" +
-          "      public " + retType.getName() + " apply(" + argType.getName() + " arg) {\n" +
+        return " arg -> {\n" +
           "        " + genTypeName(retType) + " ret = " + expr + ".apply(" + genConvReturn(argType, method, "arg") + ");\n" +
           "        return " + genConvParam(retType, method, "ret") + ";\n" +
-          "      }\n" +
           "    }";
       } else if (kind == LIST || kind == SET) {
         return expr + ".stream().map(elt -> " + genConvParam(parameterizedTypeInfo.getArg(0), method, "elt") + ").collect(java.util.stream.Collectors.to" + type.getRaw().getSimpleName() + "())";
@@ -555,6 +572,9 @@ class FutureWrapperGenerator extends Generator<ClassModel> {
     } else if (isSameType(type, method)) {
       return expr;
     } else if (kind == API) {
+      if (isFuture(type.getRaw())) {
+        return expr;
+      }
       StringBuilder tmp = new StringBuilder(type.getRaw().translateName("future"));
       tmp.append(".newInstance(");
       tmp.append(expr);
@@ -663,7 +683,11 @@ class FutureWrapperGenerator extends Generator<ClassModel> {
       ParameterizedTypeInfo pt = (ParameterizedTypeInfo) type;
       return genTypeName(pt.getRaw()) + pt.getArgs().stream().map(this::genTypeName).collect(Collectors.joining(", ", "<", ">"));
     } else if (type.getKind() == ClassKind.API) {
-      return type.translateName("future");
+      if (isFuture(type.getRaw())) {
+        return type.getRaw().getName();
+      } else {
+        return type.translateName("future");
+      }
     } else {
       return type.getSimpleName();
     }
